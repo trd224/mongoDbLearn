@@ -1,0 +1,207 @@
+1. How many users are active ?
+
+query:-
+
+[
+  {
+    $match:{
+      isActive: true
+    }
+  },
+  {
+    $count: "activeUsers"
+  }
+]
+
+output:-
+
+{
+  "activeUsers": 516
+}
+
+---------------------------------------------------------
+
+2. waht is the average age of all users ?
+
+quert:-
+
+[
+  {
+    $group: {
+      _id: null,
+      averageAge: {
+        $avg: "$age"
+      }
+    }
+  }
+]
+
+output:-
+
+{
+  "_id": null,
+  "averageAge": 29.835
+}
+
+------------------------------------------------------------
+
+3. List the top 5 most common favorite fruits among the users;
+
+query:- 
+
+[
+ 
+  {
+    $group: {
+      _id: "$favoriteFruit",
+      count : {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  },
+  {$limit: 5}
+]
+
+output:-
+
+[{
+  "_id": "banana",
+  "count": 339
+},
+{
+  "_id": "apple",
+  "count": 338
+},
+{
+  "_id": "strawberry",
+  "count": 323
+}]
+
+---------------------------------------------------------
+
+4. find the total number of males and females.
+
+query:-
+
+[
+  {
+    $group: {
+      _id: "$gender",
+      count: {
+        $sum: 1
+      }
+    }
+  }
+]
+
+output:-
+
+[{
+  "_id": "female",
+  "count": 507
+},
+{
+  "_id": "male",
+  "count": 493
+}]
+
+---------------------------------------------
+
+5. which country has the heighest number of registered users ?
+
+[
+  {
+    $group: {
+      _id: "$company.location.country",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  },
+  {
+    $limit: 1
+  }
+]
+
+output: -
+
+{
+  "_id": "Germany",
+  "count": 261
+}
+
+-------------------------------------------
+
+6. List all unique eye color present in the collections ?
+
+query:- 
+
+[
+  {
+    $group: {
+      _id: "$eyeColor",
+     
+    }
+  }
+]
+
+output: -
+
+[{
+  "_id": "brown"
+},
+{
+  "_id": "green"
+},{
+  "_id": "blue"
+}]
+
+-------------------------------------------------
+
+7. Wath is the average number of tags per user ?
+
+query: -
+
+[
+  {
+    $unwind: "$tags"
+  },
+  {
+    $group: {
+      _id: "$_id",
+      numberOfTags: {
+        $sum: 1
+      } 
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      avgNumberOfTags: {
+        $avg: "$numberOfTags"
+      }
+      
+    }
+  }
+]
+
+output:- 
+
+{
+  "_id": null,
+  "avgNumberOfTags": 3.556
+}
+
+--------------------------------------
+
+8. 
