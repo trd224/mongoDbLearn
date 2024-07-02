@@ -485,3 +485,213 @@ Find Users with Specific Tags and Sort by Registration Date
     }
   }
 ]
+
+Find Users Who Registered in the Last Year and Sort by Registration Date
+
+[
+  {
+    "$match": {
+      "registered.$date": { "$gt": { "$dateSubtract": { "startDate": "$$NOW", "unit": "year", "amount": 1 } } }
+    }
+  },
+  {
+    "$sort": { "registered.$date": -1 }
+  }
+]
+
+Find the Top 5 Most Common Tags
+
+[
+  {
+    $unwind: "$tags"
+  },
+  {
+    $group: {
+      _id: "$tags",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  },
+  {
+    $limit: 5
+  }
+]
+
+
+List Users Who Are Older Than the Average Age
+
+[
+  {
+    "$group": {
+      "_id": null,
+      "averageAge": { "$avg": "$age" }
+    }
+  },
+  {
+    "$lookup": {
+      "from": "users",
+      "let": { "averageAge": "$averageAge" },
+      "pipeline": [
+        {
+          "$match": {
+            "$expr": { "$gt": ["$age", "$$averageAge"] }
+          }
+        }
+      ],
+      "as": "olderUsers"
+    }
+  },
+  {
+    "$unwind": "$olderUsers"
+  },
+  {
+    "$replaceRoot": { "newRoot": "$olderUsers" }
+  }
+]
+
+Find Users Who Have More Than 3 Tags
+
+[
+  {
+    $addFields: {
+      tagCount: {
+        $size: "$tags"
+      }
+    }
+  },
+  {
+    $match: {
+      tagCount: {
+        $gt: 3
+      }
+    }
+  }
+]
+
+Find the User with the Longest Name
+
+[
+  {
+    "$project": {
+      "name": 1,
+      "nameLength": { "$strLenCP": "$name" }
+    }
+  },
+  {
+    "$sort": { "nameLength": -1 }
+  },
+  {
+    "$limit": 1
+  }
+]
+
+
+Find Users by Partial Email Match Using Regex
+
+[
+  {
+    "$match": {
+      "company.email": { "$regex": "yurture.com", "$options": "i" }
+    }
+  }
+]
+
+Calculate the Total Age of All Users
+
+[
+  {
+    "$group": {
+      "_id": null,
+      "totalAge": { "$sum": "$age" }
+    }
+  }
+]
+
+List Users Sorted by Their Company's Country and Age in Descending Order
+
+[
+  {
+    "$sort": { "company.location.country": 1, "age": -1 }
+  }
+]
+
+ Find Users Whose Name Starts with a Specific Letter
+
+[
+  {
+    "$match": {
+      "name": { "$regex": "^A", "$options": "i" }
+    }
+  }
+]
+
+
+Calculate the Total Number of Users by Age Group (0-20, 21-40, 41-60, 61+)
+
+[
+  {
+    "$bucket": {
+      "groupBy": "$age",
+      "boundaries": [0, 20, 40, 60, 100],
+      "default": "Unknown",
+      "output": {
+        "count": { "$sum": 1 }
+      }
+    }
+  }
+]
+
+
+Find Users Who Have Tags Starting with a Specific Letter and Count Each Tag's Occurrence
+
+[
+  {
+    "$unwind": "$tags"
+  },
+  {
+    "$match": {
+      "tags": { "$regex": "^e", "$options": "i" }
+    }
+  },
+  {
+    "$group": {
+      "_id": "$tags",
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+Find Users Who Have Registered on a Weekday vs Weekend
+
+
+[
+  {
+    "$project": {
+      "weekday": { "$dayOfWeek": "$registered" }
+    }
+  },
+  {
+    "$project": {
+      "registeredDay": {
+        "$cond": {
+          "if": { "$in": ["$weekday", [1, 7]] },
+          "then": "weekend",
+          "else": "weekday"
+        }
+      }
+    }
+  },
+  {
+    "$group": {
+      "_id": "$registeredDay",
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
