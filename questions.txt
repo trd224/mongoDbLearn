@@ -204,4 +204,284 @@ output:-
 
 --------------------------------------
 
-8. 
+8. look up authors from books
+
+[
+  {
+    $lookup: {
+      from: "authors",
+      localField: "author_id",
+      foreignField: "_id",
+      as: "author_details"
+    }
+  },
+  {
+    $addFields: {
+      "author_details": {
+        $first: "$author_details"
+      }
+    }
+  }
+]
+
+another methor:-
+
+[
+  {
+    $lookup: {
+      from: "authors",
+      localField: "author_id",
+      foreignField: "_id",
+      as: "author_details"
+    }
+  },
+  {
+    $addFields: {
+      "author_details": {
+        $arrayElemAt: ["$author_details", 0]
+      }
+    }
+  }
+]
+
+
+-----------------------------------------
+
+Group Users by Eye Color and Count Them
+
+[
+  {
+    "$group": {
+      "_id": "$eyeColor",
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+
+Find the Average Age of Users
+
+[
+  {
+    "$group": {
+      "_id": null,
+      "averageAge": { "$avg": "$age" }
+    }
+  }
+]
+
+Group Users by Gender and Calculate the Average Age for Each Gender
+
+[
+  {
+    "$group": {
+      "_id": "$gender",
+      "averageAge": { "$avg": "$age" }
+    }
+  }
+]
+
+List Users Registered After a Certain Date
+
+[
+  {
+    "$match": {
+      "registered.$date": { "$gt": ISODate("2020-01-01T00:00:00Z") }
+    }
+  }
+]
+
+
+Find the Most Common Favorite Fruit
+
+[
+  {
+    "$group": {
+      "_id": "$favoriteFruit",
+      "count": { "$sum": 1 }
+    }
+  },
+  {
+    "$sort": { "count": -1 }
+  },
+  {
+    "$limit": 1
+  }
+]
+
+ Find Users Who Have Tags Containing "consequat"
+
+ [
+  {
+    "$match": {
+      "tags": "consequat"
+    }
+  }
+]
+
+
+Get the Total Number of Active and Inactive Users
+
+[
+  {
+    "$group": {
+      "_id": "$isActive",
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+
+Group Users by Country and Count the Number of Users in Each Country
+
+[
+  {
+    "$group": {
+      "_id": "$company.location.country",
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+
+ Find Users with the Top 3 Highest Ages
+
+ [
+  {
+    "$sort": { "age": -1 }
+  },
+  {
+    "$limit": 3
+  }
+]
+
+
+Find Users with a Specific Company Title and Sort by Name
+
+[
+  {
+    "$match": {
+      "company.title": "YURTURE"
+    }
+  },
+  {
+    "$sort": { "name": 1 }
+  }
+]
+
+
+Find the Average Age of Users by Country
+
+[
+  {
+    "$group": {
+      "_id": "$company.location.country",
+      "averageAge": { "$avg": "$age" }
+    }
+  }
+]
+
+
+Find Users Who Registered Between Two Dates
+
+[
+  {
+    "$match": {
+      "registered.$date": { "$gte": ISODate("2015-01-01T00:00:00Z"), "$lt": ISODate("2020-01-01T00:00:00Z") }
+    }
+  }
+]
+
+
+Calculate the Total Number of Users by Favorite Fruit
+
+[
+  {
+    "$group": {
+      "_id": "$favoriteFruit",
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+List All Unique Tags Used by Users
+
+[
+  {
+    "$unwind": "$tags"
+  },
+  {
+    "$group": {
+      "_id": "$tags"
+    }
+  }
+]
+
+Count the Number of Users by Gender and Eye Color Combination
+
+[
+  {
+    "$group": {
+      "_id": { "gender": "$gender", "eyeColor": "$eyeColor" },
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+Get the Earliest and Latest Registration Dates
+
+[
+  {
+    "$group": {
+      "_id": null,
+      "earliestDate": { "$min": "$registered.$date" },
+      "latestDate": { "$max": "$registered.$date" }
+    }
+  }
+]
+
+Find the Maximum Age of Users by Gender
+
+[
+  {
+    "$group": {
+      "_id": "$gender",
+      "maxAge": { "$max": "$age" }
+    }
+  }
+]
+
+Calculate the Total Number of Users by Country and Active Status
+
+[
+  {
+    "$group": {
+      "_id": { "country": "$company.location.country", "isActive": "$isActive" },
+      "count": { "$sum": 1 }
+    }
+  }
+]
+
+
+Find Users with Specific Tags and Sort by Registration Date
+
+[
+  {
+    "$match": {
+      "tags": { "$all": ["enim", "ad"] }
+    }
+  },
+  {
+    "$sort": { "registered.$date": -1 }
+  }
+]
+
+ Find Users by Partial Name Match Using Regex
+
+ [
+  {
+    "$match": {
+      "name": { "$regex": "Gonzales", "$options": "i" }
+    }
+  }
+]
